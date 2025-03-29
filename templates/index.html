@@ -1,95 +1,145 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Netflix Code Notifier</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f3f4f6;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background-color: #ff4500;
-            padding: 10px;
-            color: white;
-            text-align: center;
-            font-size: 1.5rem;
-        }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin-top: 20px;
-        }
-        .card {
-            background-color: white;
-            padding: 20px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            width: 90%;
-            max-width: 500px;
-            margin: 20px 0;
-        }
-        .card h2 {
-            font-size: 1.2rem;
-            color: #333;
-        }
-        .card p {
-            font-size: 1rem;
-            color: #555;
-        }
-        .btn {
-            background-color: #ff4500;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 1rem;
-            transition: background-color 0.3s ease;
-        }
-        .btn:hover {
-            background-color: #e53e00;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Netflix Code Notifier</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: 'Roboto', sans-serif;
+      transition: all 0.3s ease-in-out;
+    }
+
+    body {
+      margin: 0;
+      background: #0f0f1a;
+      color: #f3f4f6;
+    }
+
+    header {
+      background: linear-gradient(90deg, #6a0dad, #8a2be2);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.8rem;
+      font-weight: bold;
+      letter-spacing: 0.8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 3rem auto;
+      padding: 2rem;
+      background: #1c1c2e;
+      border-radius: 16px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    h2 {
+      font-size: 1.3rem;
+      margin-bottom: 1.2rem;
+      color: #e0dfff;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 0.75rem;
+      margin-bottom: 1.5rem;
+      border: 1px solid #8a2be2;
+      border-radius: 8px;
+      font-size: 1rem;
+      background-color: #2e2e3f;
+      color: #f3f4f6;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.9rem;
+      background: linear-gradient(to right, #6a0dad, #8a2be2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .result {
+      margin-top: 2rem;
+      padding: 1.2rem;
+      background: #2e2e3f;
+      border-radius: 10px;
+      border: 1px solid #6a0dad;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+
+    .result p {
+      margin: 0.6rem 0;
+      font-size: 0.96rem;
+      color: #dcd6f7;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
 </head>
 <body>
 
-<header>
-    Netflix Code Notifier
-</header>
+  <header>
+    💜 Netflix Code Notifier
+  </header>
 
-<div class="container">
-    <div class="card">
-        <h2>Thông tin mã Netflix</h2>
-        <p id="account-name">Tài khoản: N/A</p>
-        <p id="verification-link">Link mã xác minh: N/A</p>
-        <p id="expiration-time">Hiệu lực: N/A</p>
-        <p id="received-time">Thời gian nhận: N/A</p>
-        <button class="btn" id="check-btn">Kiểm tra mã mới</button>
+  <div class="container">
+    <h2>🔐 Nhập email tài khoản Netflix cần lấy mã</h2>
+    <input type="email" id="email-input" placeholder="ví dụ: mail@gmail.com">
+    <button id="check-btn">🚀 Lấy mã xác minh</button>
+
+    <div class="result" id="result" style="display: none;">
+      <p><strong>Tài khoản:</strong> <span id="account-name"></span></p>
+      <p><strong>Link mã xác minh:</strong> <span id="verification-link"></span></p>
+      <p><strong>Thời gian nhận:</strong> <span id="received-time"></span></p>
+      <p><strong>Hiệu lực đến:</strong> <span id="expiration-time"></span></p>
     </div>
-</div>
+  </div>
 
-<script>
-    document.getElementById("check-btn").addEventListener("click", function() {
-        fetch('/check_mail')
+  <script>
+    document.getElementById("check-btn").addEventListener("click", function () {
+      const email = document.getElementById("email-input").value;
+      if (!email) {
+        alert("❗ Vui lòng nhập email để tiếp tục.");
+        return;
+      }
+
+      fetch(`/check_mail?email=${encodeURIComponent(email)}`)
         .then(response => response.json())
         .then(data => {
-            if (data.message.includes("Đã gửi")) {
-                document.getElementById("account-name").textContent = "Tài khoản: " + data.account_name;
-                document.getElementById("verification-link").textContent = "Link mã xác minh: " + data.link;
-                document.getElementById("expiration-time").textContent = "Hiệu lực: " + data.expiration_time;
-                document.getElementById("received-time").textContent = "Thời gian nhận: " + data.received_time;
-            } else {
-                alert("Không tìm thấy mã xác minh mới!");
-            }
+          if (data.link) {
+            document.getElementById("account-name").textContent = data.account_name;
+            document.getElementById("verification-link").textContent = data.link;
+            document.getElementById("received-time").textContent = data.received_time;
+            document.getElementById("expiration-time").textContent = data.expiration_time;
+            document.getElementById("result").style.display = "block";
+          } else {
+            alert(data.message);
+            document.getElementById("result").style.display = "none";
+          }
         })
-        .catch(error => alert("Có lỗi xảy ra, thử lại sau!"));
+        .catch(error => {
+          alert("⚠️ Có lỗi xảy ra khi kiểm tra mã. Vui lòng thử lại.");
+        });
     });
-</script>
+  </script>
 
 </body>
 </html>
