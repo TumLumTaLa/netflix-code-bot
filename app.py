@@ -1,31 +1,31 @@
+import os
+import json
+import base64
+import re
+import email
+from io import StringIO
 from flask import Flask, jsonify
+from telegram import Bot
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
-from telegram import Bot
-import base64
-import os
-import re
-import email
 
 app = Flask(__name__)
 
-# Bot info
-TELEGRAM_TOKEN = "7673446907:AAE6aUOgK4Z0yv9r3R3VvyxEtZD5L84Gx-I"
-CHAT_ID = "1794706168"
+# Lấy các biến môi trường
+TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
+CHAT_ID = os.getenv("CHAT_ID")
+GOOGLE_CREDENTIALS = os.getenv("GOOGLE_CREDENTIALS")
 
-# Gmail API
+# Gmail API Scope
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
-creds = None
 
-if os.path.exists('token.json'):
-    creds = Credentials.from_authorized_user_file('token.json', SCOPES)
-else:
-    flow = InstalledAppFlow.from_client_secrets_file('credentials.json', SCOPES)
-    creds = flow.run_local_server(port=0)
-    with open('token.json', 'w') as token:
-        token.write(creds.to_json())
+# Xử lý Google credentials từ biến môi trường
+credentials_dict = json.loads(GOOGLE_CREDENTIALS)
+flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
+creds = flow.run_local_server(port=0)
 
+# Tạo service Gmail
 service = build('gmail', 'v1', credentials=creds)
 
 @app.route('/check_mail', methods=['GET'])
@@ -49,10 +49,8 @@ def check_mail():
     else:
         body = parsed_email.get_payload(decode=True).decode()
 
-    # Tìm tất cả đường link trong email HTML
+    # Tìm link Netflix
     links = re.findall(r'https?://[^\s"\']+', body)
-
-    # Tìm link chứa "netflix" hoặc có chữ "code", hoặc có dạng /verify/
     target_link = next((l for l in links if "netflix.com" in l and ("code" in l or "verify" in l)), None)
 
     if target_link:
