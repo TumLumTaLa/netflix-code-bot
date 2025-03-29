@@ -2,16 +2,18 @@ from flask import Flask, render_template, request, jsonify
 import base64
 import re
 import email
+import os
+import json
 from datetime import datetime, timedelta
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from telegram import Bot
-import os
 
 app = Flask(__name__)
 
-# Load credentials từ biến môi trường hoặc file token.json
-creds = Credentials.from_authorized_user_file('token.json', scopes=['https://www.googleapis.com/auth/gmail.readonly'])
+# Load credentials từ biến môi trường (token JSON lưu dưới dạng chuỗi)
+creds_data = json.loads(os.getenv("GMAIL_TOKEN"))
+creds = Credentials.from_authorized_user_info(creds_data, scopes=['https://www.googleapis.com/auth/gmail.readonly'])
 service = build('gmail', 'v1', credentials=creds)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN") or "7673446907:AAE6aUOgK4Z0yv9r3R3VvyxEtZD5L84Gx-I"
