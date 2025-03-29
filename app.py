@@ -80,7 +80,7 @@ def check_mail():
         else:
             body = parsed_email.get_payload(decode=True).decode()
 
-        links = re.findall(r'https?://[\w\-._~:/?#\[\]@!$&'()*+,;=%]+', body)
+        links = re.findall(r'https?://[\w\-._~:/?#\[\]@!$&\'()*+,;=%]+', body)
         target_link = next((l for l in links if "netflix.com" in l and ("code" in l or "verify" in l)), None)
 
         if target_link:
