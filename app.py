@@ -30,7 +30,7 @@ service = build('gmail', 'v1', credentials=creds)
 def index():
     return render_template('index.html')
 
-@@app.route('/check_mail', methods=['GET'])
+@app.route('/check_mail', methods=['GET'])
 def check_mail():
     # Các tiêu đề cần kiểm tra
     valid_subjects = [
