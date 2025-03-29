@@ -1,10 +1,9 @@
-<!DOCTYPE html>
-<html lang="vi">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<html lang="vi"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Netflix Code Notifier</title>
-  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&amp;display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}" />
   <style>
     * {
       box-sizing: border-box;
@@ -118,10 +117,10 @@
   </style>
 </head>
 <body>
-  <header>💜 Netflix Code Notifier</header>
+  <header>💜 Welcome to lấy code Netflix 💜</header>
   <div class="container">
-    <h2>🔐 Nhập email tài khoản Netflix cần lấy mã</h2>
-    <input type="email" id="email-input" placeholder="ví dụ: netflix10@gmail.com" />
+    <h2>🎬 Nhập email tài khoản Netflix cần lấy mã </h2>
+    <input type="email" id="email-input" placeholder="ví dụ: netflix10@gmail.com">
     <button id="check-btn">🚀 Lấy mã xác minh</button>
     <div class="result" id="result">
       <p><strong>Tài khoản:</strong> <span id="account-name"></span></p>
@@ -131,5 +130,6 @@
     </div>
   </div>
   <script src="script.js"></script>
-</body>
-</html>
+
+
+</body></html>
