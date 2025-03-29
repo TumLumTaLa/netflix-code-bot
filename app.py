@@ -4,7 +4,7 @@ import base64
 import re
 import email
 from datetime import datetime, timedelta
-from flask import Flask, jsonify
+from flask import Flask, jsonify, render_template
 from telegram import Bot
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
@@ -25,6 +25,10 @@ creds = Credentials.from_authorized_user_info(token_data, SCOPES)
 
 # Tạo Gmail API service
 service = build('gmail', 'v1', credentials=creds)
+
+@app.route('/')
+def index():
+    return render_template('index.html')
 
 @app.route('/check_mail', methods=['GET'])
 def check_mail():
@@ -72,7 +76,13 @@ def check_mail():
 
         Bot(token=TELEGRAM_TOKEN).send_message(chat_id=CHAT_ID, text=message)
 
-        return jsonify({'message': f'✅ Đã gửi thông báo về {name} qua Telegram.\nLink: {target_link}\nHiệu lực: {expiration_str}'}), 200
+        return jsonify({
+            'message': f'✅ Đã gửi thông báo về {name} qua Telegram.',
+            'account_name': name,
+            'link': target_link,
+            'expiration_time': expiration_str,
+            'received_time': email_time_str
+        }), 200
     else:
         return jsonify({'message': '⚠️ Không tìm thấy link nhận mã trong email.'}), 200
 
