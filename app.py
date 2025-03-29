@@ -23,7 +23,7 @@ SCOPES = ['https://www.googleapis.com/auth/gmail.readonly']
 # Xử lý Google credentials từ biến môi trường
 credentials_dict = json.loads(GOOGLE_CREDENTIALS)
 flow = InstalledAppFlow.from_client_config(credentials_dict, SCOPES)
-creds = flow.run_local_server(port=0)
+creds = flow.run_console()
 
 # Tạo service Gmail
 service = build('gmail', 'v1', credentials=creds)
