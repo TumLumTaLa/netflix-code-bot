@@ -2,22 +2,22 @@ from flask import Flask, render_template, request, jsonify
 import base64
 import re
 import email
+import os
+import json
 from datetime import datetime, timedelta
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from telegram import Bot
-import os
-import json
 
-app = Flask(__name__, static_folder='static', template_folder='templates')
+app = Flask(__name__)
 
-# Load credentials từ biến môi trường dạng JSON
+# Load credentials từ biến môi trường
 creds_data = json.loads(os.getenv("GMAIL_TOKEN"))
 creds = Credentials.from_authorized_user_info(creds_data, scopes=['https://www.googleapis.com/auth/gmail.readonly'])
 service = build('gmail', 'v1', credentials=creds)
 
 TELEGRAM_TOKEN = os.getenv("TELEGRAM_TOKEN")
-CHAT_ID = os.getenv("CHAT_ID")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID")
 
 @app.route('/')
 def index():
@@ -51,8 +51,13 @@ def check_mail():
         if not any(subj in subject for subj in valid_subjects):
             continue
 
-        to_field = parsed_email['To'].lower() if parsed_email['To'] else ""
-        if requested_email not in to_field:
+        # So khớp với nhiều trường email đích
+        to_candidates = [
+            parsed_email.get('To', '').lower(),
+            parsed_email.get('Delivered-To', '').lower(),
+            parsed_email.get('Return-Path', '').lower()
+        ]
+        if not any(requested_email in field for field in to_candidates if field):
             continue
 
         from_email = parsed_email['From']
@@ -72,6 +77,7 @@ def check_mail():
         else:
             body = parsed_email.get_payload(decode=True).decode()
 
+        # Tìm link xác minh
         links = re.findall(r'https?://[^\s"\']+', body)
         target_link = next((l for l in links if "netflix.com" in l and ("code" in l or "verify" in l)), None)
 
