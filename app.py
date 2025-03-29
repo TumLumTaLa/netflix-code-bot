@@ -3,6 +3,7 @@ import json
 import base64
 import re
 import email
+from datetime import datetime, timedelta
 from flask import Flask, jsonify
 from telegram import Bot
 from google.oauth2.credentials import Credentials
@@ -37,6 +38,16 @@ def check_mail():
     raw_data = base64.urlsafe_b64decode(msg['raw'].encode("UTF-8"))
     parsed_email = email.message_from_bytes(raw_data)
 
+    # Lấy thông tin người gửi (email người gửi)
+    from_email = parsed_email['From']
+    name_match = re.search(r'\"([^\"]+)\"', from_email)
+    name = name_match.group(1) if name_match else from_email.split('<')[0]
+
+    # Lấy thời gian email được gửi
+    email_time = datetime.utcfromtimestamp(int(msg['internalDate']) / 1000)
+    email_time_str = email_time.strftime('%H:%M:%S')
+
+    # Lấy body email và tìm link Netflix
     body = ""
     if parsed_email.is_multipart():
         for part in parsed_email.walk():
@@ -46,13 +57,22 @@ def check_mail():
     else:
         body = parsed_email.get_payload(decode=True).decode()
 
-    # Tìm link xác minh Netflix
     links = re.findall(r'https?://[^\s"\']+', body)
     target_link = next((l for l in links if "netflix.com" in l and ("code" in l or "verify" in l)), None)
 
     if target_link:
-        Bot(token=TELEGRAM_TOKEN).send_message(chat_id=CHAT_ID, text=f"🔗 Link nhận mã Netflix:\n{target_link}")
-        return jsonify({'message': f'✅ Đã gửi link: {target_link} qua Telegram.'}), 200
+        # Tính hiệu lực (15 phút)
+        expiration_time = email_time + timedelta(minutes=15)
+        expiration_str = expiration_time.strftime('%H:%M:%S')
+
+        message = (f"📧 **Email từ**: {name}\n"
+                   f"🔗 **Link nhận mã**: {target_link}\n"
+                   f"🕒 **Thời gian nhận mail**: {email_time_str}\n"
+                   f"⏰ **Hiệu lực**: {expiration_str}")
+
+        Bot(token=TELEGRAM_TOKEN).send_message(chat_id=CHAT_ID, text=message)
+
+        return jsonify({'message': f'✅ Đã gửi thông báo về {name} qua Telegram.\nLink: {target_link}\nHiệu lực: {expiration_str}'}), 200
     else:
         return jsonify({'message': '⚠️ Không tìm thấy link nhận mã trong email.'}), 200
 
