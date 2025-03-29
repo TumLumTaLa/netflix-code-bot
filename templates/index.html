@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Netflix Code Notifier</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f3f4f6;
+            margin: 0;
+            padding: 0;
+        }
+        header {
+            background-color: #ff4500;
+            padding: 10px;
+            color: white;
+            text-align: center;
+            font-size: 1.5rem;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .card {
+            background-color: white;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 500px;
+            margin: 20px 0;
+        }
+        .card h2 {
+            font-size: 1.2rem;
+            color: #333;
+        }
+        .card p {
+            font-size: 1rem;
+            color: #555;
+        }
+        .btn {
+            background-color: #ff4500;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s ease;
+        }
+        .btn:hover {
+            background-color: #e53e00;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    Netflix Code Notifier
+</header>
+
+<div class="container">
+    <div class="card">
+        <h2>Thông tin mã Netflix</h2>
+        <p id="account-name">Tài khoản: N/A</p>
+        <p id="verification-link">Link mã xác minh: N/A</p>
+        <p id="expiration-time">Hiệu lực: N/A</p>
+        <p id="received-time">Thời gian nhận: N/A</p>
+        <button class="btn" id="check-btn">Kiểm tra mã mới</button>
+    </div>
+</div>
+
+<script>
+    document.getElementById("check-btn").addEventListener("click", function() {
+        fetch('/check_mail')
+        .then(response => response.json())
+        .then(data => {
+            if (data.message.includes("Đã gửi")) {
+                document.getElementById("account-name").textContent = "Tài khoản: " + data.account_name;
+                document.getElementById("verification-link").textContent = "Link mã xác minh: " + data.link;
+                document.getElementById("expiration-time").textContent = "Hiệu lực: " + data.expiration_time;
+                document.getElementById("received-time").textContent = "Thời gian nhận: " + data.received_time;
+            } else {
+                alert("Không tìm thấy mã xác minh mới!");
+            }
+        })
+        .catch(error => alert("Có lỗi xảy ra, thử lại sau!"));
+    });
+</script>
+
+</body>
+</html>
